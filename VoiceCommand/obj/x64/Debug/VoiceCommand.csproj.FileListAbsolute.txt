@@ -1,0 +1,11 @@
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\Microsoft.CognitiveServices.Speech.core.dll
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\Microsoft.CognitiveServices.Speech.extension.kws.dll
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\VoiceCommand.exe.config
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\VoiceCommand.exe
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\VoiceCommand.pdb
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\Microsoft.CognitiveServices.Speech.csharp.dll
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\bin\x64\Debug\Microsoft.CognitiveServices.Speech.csharp.xml
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\obj\x64\Debug\VoiceCommand.csprojAssemblyReference.cache
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\obj\x64\Debug\VoiceCommand.csproj.CopyComplete
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\obj\x64\Debug\VoiceCommand.exe
+C:\Users\bedir\source\repos\VoiceCommand\VoiceCommand\obj\x64\Debug\VoiceCommand.pdb
