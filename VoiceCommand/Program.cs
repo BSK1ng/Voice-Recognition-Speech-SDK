@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -210,109 +210,127 @@ namespace VoiceCommand
                 // Note: Since RecognizeOnceAsync() returns only a single utterance, it is suitable only for single
                 // shot recognition like command or query. 
                 // For long-running multi-utterance recognition, use StartContinuousRecognitionAsync() instead.
+
                 var result = await recognizer.RecognizeOnceAsync();
-                
+
                 if (result.Text == "")
                 {
                     RecognizeSpeechAsync(false).Wait();
                 }
+
+                string speech = result.Text.Substring(0, result.Text.Length - 1).ToLower(); //Getting the phrase as text. Removing the last charachter which is a dot.
                 
-                string speech = result.Text.Substring(0, result.Text.Length - 1); //Getting the phrase as text. Removing the last charachter which is a dot.
-    
-                if (speech == "Hello") // First you need to say "Hello" before giving a command. 
+                if (speech == "hello") // First you need to say "Hello" before giving a command. 
                 {
                     Console.WriteLine("Hello Sir. Tell me what to do!");
                     RecognizeSpeechAsync(true).Wait();
                 }
                 else if (auth)
                 {
-                    if (speech == "Exit")
+                    if (speech == "exit")
                     {
                         Console.WriteLine("Terminating the program");
                         Environment.Exit(1);
                     }
-  
+
                     int firstIndex = speech.IndexOf(" "); // Divide the phrase to two from first space charachter. 
-                    string[] phrase = { speech.Substring(0, firstIndex), speech.Substring(firstIndex+1) }; // First phrase is command. Second phrase is the desired app to run.
-                    // Example: if the phrase is "Open Google Chrome" then "Open" is the command and the "Google Chrome" is the app to run.
-
-                    double maxDistanceComm = 999; // In Levenshtein algorithm, lower the score means higher similarity. So i set max distance 999.
-                    double maxDistanceApp  = 999;
-                    int selectedCommand    = 0;
-                    string desiredApp      = "";
-                    double jaroComm;
-                    int commandsLength = commands.Length;
-                    
-                    for (int i = 0; i < commandsLength; i++)
+                    if (firstIndex == -1)
                     {
-                        jaroComm = LevenshteinDistance.Compute(commands[i], phrase[0]);
-                        if (jaroComm < maxDistanceComm)
-                        {
-                            maxDistanceComm = jaroComm;
-                            selectedCommand = i;
-                        }
+                        Console.WriteLine("Please use more than one word to give a command!");
                     }
-
-                    string fileName = "";
-                    string gameName = "";
-                    string selectedFileName = "";
-                    string selectedGameName = "";
-                    if (selectedCommand == 0 || selectedCommand == 1) // If the command is "Open" or "Close"
+                    else
                     {
-                        int programsLength = programs.Length;
-                        for (int i = 0; i < programsLength; i++)
+                        string[] phrase = { speech.Substring(0, firstIndex), speech.Substring(firstIndex + 1) }; // First phrase is command. Second phrase is the desired app to run.
+                                                                                                                 // Example: if the phrase is "Open Google Chrome" then "Open" is the command and the "Google Chrome" is the app to run.
+
+                        double maxDistanceComm = 999; // In Levenshtein algorithm, lower the score means higher similarity. So i set max distance 999.
+                        double maxDistanceApp = 999;
+                        int selectedCommand = 0;
+                        string desiredApp = "";
+                        double jaro;
+                        int commandsLength = commands.Length;
+
+                        for (int i = 0; i < commandsLength; i++)
                         {
-                            int lastIndex = programs[i].LastIndexOf("\\");
-                            fileName = programs[i].Substring(lastIndex); //Application names come with directory so i remove it
-                            jaroComm = LevenshteinDistance.Compute(fileName, phrase[1]); //Getting similarity score between phrase and applications
-                            if (jaroComm < maxDistanceApp)
+                            jaro = LevenshteinDistance.Compute(commands[i], phrase[0]);
+
+                            if (jaro < 3 && jaro < maxDistanceComm)
                             {
-                                maxDistanceApp = jaroComm;
-                                desiredApp = programs[i];
-                                selectedFileName = fileName; // Getting the most similar application to phrase that given.
+                                maxDistanceComm = jaro;
+                                selectedCommand = i;
                             }
                         }
-                        CmdExecuter(desiredApp, selectedFileName, selectedCommand);
-                        /* 
-                         1.parameter = App name with path
-                         2.parameter = App name 
-                         3.parameter = "Open" command
-                        */
-                    }
-                    else if (selectedCommand == 4) // If the command is "Play"
-                    {
-                        int gamesLength = games.Length;
-                        for (int i = 0; i < gamesLength; i++)
+
+                        if (maxDistanceComm > 2)
                         {
-                            int lastIndex = games[i].LastIndexOf("\\");
-                            gameName = games[i].Substring(lastIndex);
-                            jaroComm = LevenshteinDistance.Compute(gameName, phrase[1]);
-                            if (jaroComm < maxDistanceApp)
+                            Console.WriteLine("Command: "+ phrase[0]+" does not exist!");
+                        }
+                        else
+                        {
+                            string fileName = "";
+                            string gameName = "";
+                            string selectedFileName = "";
+                            string selectedGameName = "";
+                            if (selectedCommand == 0 || selectedCommand == 1) // If the command is "Open" or "Close"
                             {
-                                maxDistanceApp = jaroComm;
-                                desiredApp = games[i];
-                                selectedGameName = gameName;
+                                int programsLength = programs.Length;
+                                for (int i = 0; i < programsLength; i++)
+                                {
+                                    int lastIndex = programs[i].LastIndexOf("\\");
+                                    fileName = programs[i].Substring(lastIndex).ToLower(); //Application names come with directory so i remove it
+                                    jaro = LevenshteinDistance.Compute(fileName, phrase[1]); //Getting similarity score between phrase and applications
+                                    if (jaro < maxDistanceApp)
+                                    {
+                                        maxDistanceApp = jaro;
+                                        desiredApp = programs[i];
+                                        selectedFileName = fileName; // Getting the most similar application to phrase that given.
+                                    }
+                                }
+                                CmdExecuter(desiredApp, selectedFileName, selectedCommand);
+                                /* 
+                                 1.parameter = App name with path
+                                 2.parameter = App name 
+                                 3.parameter = "Open" command
+                                */
+                            }
+                            else if (selectedCommand == 4) // If the command is "Play"
+                            {
+                                int gamesLength = games.Length;
+                                for (int i = 0; i < gamesLength; i++)
+                                {
+                                    int lastIndex = games[i].LastIndexOf("\\");
+                                    gameName = games[i].Substring(lastIndex).ToLower();
+                                    jaro = LevenshteinDistance.Compute(gameName, phrase[1]);
+                                    if (jaro < maxDistanceApp)
+                                    {
+                                        maxDistanceApp = jaro;
+                                        desiredApp = games[i];
+                                        selectedGameName = gameName;
+                                    }
+                                }
+                                CmdExecuter(desiredApp, selectedGameName, selectedCommand);
+                                /* 
+                                 1.parameter = Game name with path
+                                 2.parameter = Game name 
+                                 3.parameter = "Play" command
+                                */
+                            }
+                            else // If the command is "Google" or "Search"
+                            {
+                                CmdExecuter(pathPrograms + "\\Google Chrome.lnk", phrase[1], selectedCommand);
+                                /* 
+                                 1.parameter = browser path
+                                 2.parameter = search phrase or website 
+                                 3.parameter = "Google" or "Search" command
+                                */
                             }
                         }
-                        CmdExecuter(desiredApp, selectedGameName, selectedCommand);
-                        /* 
-                         1.parameter = Game name with path
-                         2.parameter = Game name 
-                         3.parameter = "Play" command
-                        */
+                       
                     }
-                    else // If the command is "Google" or "Search"
-                    {
-                        CmdExecuter(pathPrograms + "\\Google Chrome.lnk", phrase[1], selectedCommand);
-                        /* 
-                         1.parameter = browser path
-                         2.parameter = search phrase or website 
-                         3.parameter = "Google" or "Search" command
-                        */
-                    }
-                }
-                RecognizeSpeechAsync(false).Wait();
+                                       
+                }                
             }
+            RecognizeSpeechAsync(false).Wait();
         }
         static void Main(string[] args)
         {
