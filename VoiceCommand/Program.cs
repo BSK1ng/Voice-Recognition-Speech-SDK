@@ -211,9 +211,14 @@ namespace VoiceCommand
                 // shot recognition like command or query. 
                 // For long-running multi-utterance recognition, use StartContinuousRecognitionAsync() instead.
                 var result = await recognizer.RecognizeOnceAsync();
-
+                
+                if (result.Text == "")
+                {
+                    RecognizeSpeechAsync(false).Wait();
+                }
+                
                 string speech = result.Text.Substring(0, result.Text.Length - 1); //Getting the phrase as text. Removing the last charachter which is a dot.
-
+    
                 if (speech == "Hello") // First you need to say "Hello" before giving a command. 
                 {
                     Console.WriteLine("Hello Sir. Tell me what to do!");
