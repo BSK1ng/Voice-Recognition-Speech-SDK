@@ -193,7 +193,7 @@ namespace VoiceCommand
         public static async Task RecognizeSpeechAsync(bool auth)
         {
 
-            var config = SpeechConfig.FromSubscription("c7ac72200af34cda9947c0c022207e2d", "westus");
+            var config = SpeechConfig.FromSubscription("YOUR SUBSCRIPTION KEY", "region");
 
             // Creates a speech recognizer.
             using (var recognizer = new SpeechRecognizer(config))
