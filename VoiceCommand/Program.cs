@@ -168,13 +168,16 @@ namespace VoiceCommand
             switch (arg)
             {
                 case 0: // Open
+                    SynthesisToSpeakerAsync("Opening " + app).Wait();
                     p.StartInfo.FileName = app;
                     Process.Start(@comm);
                     break;
                 case 1: // Close
+                    SynthesisToSpeakerAsync("Closing " + app).Wait();
                     Process.GetProcessesByName(app)[0].Kill();                    
                     break;
                 case 2: // Search
+                    SynthesisToSpeakerAsync("Surfing to " + app).Wait();
                     p.StartInfo.FileName = app;
                     int incognitoMode = app.IndexOf("incognito");
                     if (incognitoMode == -1)
@@ -188,6 +191,7 @@ namespace VoiceCommand
                     
                     break;
                 case 3: // Google
+                    SynthesisToSpeakerAsync("Googling " + app).Wait();
                     p.StartInfo.FileName = app;
                     int incognitoSearch = app.IndexOf("incognito");
                     if (incognitoSearch == -1)
@@ -202,6 +206,7 @@ namespace VoiceCommand
                     
                     break;
                 case 4: // Play
+                    SynthesisToSpeakerAsync("Let's Play some " + app).Wait();
                     Process.Start(@comm);
                     break;
                 default:
@@ -209,6 +214,22 @@ namespace VoiceCommand
             }   
             
         }
+
+        public static async Task SynthesisToSpeakerAsync(string text)
+        {
+            // Creates an instance of a speech config with specified subscription key and service region.
+            // Replace with your own subscription key and service region (e.g., "westus").
+            // The default language is "en-us".
+            var config = SpeechConfig.FromSubscription("YOUR SUBSCRIPTION KEY 2", "region");
+
+            // Creates a speech synthesizer using the default speaker as audio output.
+            using (var synthesizer = new SpeechSynthesizer(config))
+            {
+                // Receive a text from console input and synthesize it to speaker.
+                await synthesizer.SpeakTextAsync(text);             
+            }
+        }
+
         public static async Task RecognizeSpeechAsync(bool auth)
         {
 
@@ -241,21 +262,21 @@ namespace VoiceCommand
                 
                 if (speech == "hello") // First you need to say "Hello" before giving a command. 
                 {
-                    Console.WriteLine("Hello Sir. Tell me what to do!");
+                    SynthesisToSpeakerAsync("Hello sir. Tell me what to do!").Wait();
                     RecognizeSpeechAsync(true).Wait();
                 }
                 else if (auth)
                 {
                     if (speech == "exit")
                     {
-                        Console.WriteLine("Terminating the program");
+                        SynthesisToSpeakerAsync("Terminating the program").Wait();
                         Environment.Exit(1);
                     }
 
                     int firstIndex = speech.IndexOf(" "); // Divide the phrase to two from first space charachter. 
                     if (firstIndex == -1)
                     {
-                        Console.WriteLine("Please use more than one word to give a command!");
+                        SynthesisToSpeakerAsync("Please use more than one word to give a command!").Wait();
                     }
                     else
                     {
@@ -282,7 +303,7 @@ namespace VoiceCommand
 
                         if (maxDistanceComm > 2)
                         {
-                            Console.WriteLine("Command: "+ phrase[0]+" does not exist!");
+                            SynthesisToSpeakerAsync("Command: "+ phrase[0]+" does not exist!").Wait();
                         }
                         else
                         {
