@@ -176,11 +176,30 @@ namespace VoiceCommand
                     break;
                 case 2: // Search
                     p.StartInfo.FileName = app;
-                    Process.Start(@comm, app);
+                    int incognitoMode = app.IndexOf("incognito");
+                    if (incognitoMode == -1)
+                    {
+                        Process.Start(@comm, app);
+                    }
+                    else
+                    {                        
+                        Process.Start(@comm, app.Replace("incognito", "-incognito"));                        
+                    }
+                    
                     break;
                 case 3: // Google
                     p.StartInfo.FileName = app;
-                    Process.Start(@comm, "google.com/search?q="+ app);
+                    int incognitoSearch = app.IndexOf("incognito");
+                    if (incognitoSearch == -1)
+                    {
+                        Process.Start(@comm, "google.com/search?q=" + '"' + app + '"');
+                        //Getting the phrase in double quotes to prevent to search all the words in phrase seperately.
+                    }
+                    else
+                    {
+                        Process.Start(@comm, "google.com/search?q=" + '"' + app.Substring(0, incognitoSearch) + '"' + " -incognito");
+                    }
+                    
                     break;
                 case 4: // Play
                     Process.Start(@comm);
@@ -218,7 +237,7 @@ namespace VoiceCommand
                     RecognizeSpeechAsync(false).Wait();
                 }
 
-                string speech = result.Text.Substring(0, result.Text.Length - 1).ToLower(); //Getting the phrase as text. Removing the last charachter which is a dot.
+                string speech = result.Text.Substring(0, result.Text.Length - 1).ToLowerInvariant(); //Getting the phrase as text. Removing the last charachter which is a dot.
                 
                 if (speech == "hello") // First you need to say "Hello" before giving a command. 
                 {
@@ -277,7 +296,7 @@ namespace VoiceCommand
                                 for (int i = 0; i < programsLength; i++)
                                 {
                                     int lastIndex = programs[i].LastIndexOf("\\");
-                                    fileName = programs[i].Substring(lastIndex).ToLower(); //Application names come with directory so i remove it
+                                    fileName = programs[i].Substring(lastIndex).ToLowerInvariant(); //Application names come with directory so i remove it
                                     jaro = LevenshteinDistance.Compute(fileName, phrase[1]); //Getting similarity score between phrase and applications
                                     if (jaro < maxDistanceApp)
                                     {
@@ -299,7 +318,7 @@ namespace VoiceCommand
                                 for (int i = 0; i < gamesLength; i++)
                                 {
                                     int lastIndex = games[i].LastIndexOf("\\");
-                                    gameName = games[i].Substring(lastIndex).ToLower();
+                                    gameName = games[i].Substring(lastIndex).ToLowerInvariant();
                                     jaro = LevenshteinDistance.Compute(gameName, phrase[1]);
                                     if (jaro < maxDistanceApp)
                                     {
